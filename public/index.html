@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Enterprise DSA Portal & Product-Wise SM Hub</title>
+    <title>Globel Fin Serv</title>
     <script src="/socket.io/socket.io.js"></script>
     <style>
         * { box-sizing: border-box; font-family: 'Segoe UI', Arial, sans-serif; margin: 0; padding: 0; }
@@ -55,8 +55,8 @@
         <input type="text" id="login-name" placeholder="Enter Username (e.g. admin)">
         <label>Password</label>
         <input type="password" id="login-pass" placeholder="Enter Password">
-        <button class="btn-primary" onclick="handleLogin()">Sign In</button>
-        <p style="text-align: center; font-size: 13px; margin-top: 10px;">New Partner/DSA? <a href="#" onclick="toggleAuth('signup')" style="color:#4318ff; font-weight:bold;">Register / Apply Here</a></p>
+        <button type="button" class="btn-primary" onclick="handleLogin(event)">Sign In</button>
+        <p style="text-align: center; font-size: 13px; margin-top: 10px;">New Partner/DSA? <a href="javascript:void(0)" onclick="toggleAuth('signup')" style="color:#4318ff; font-weight:bold;">Register / Apply Here</a></p>
     </div>
 
     <div class="auth-box" id="signup-box" style="display: none; max-width: 700px;">
@@ -97,8 +97,8 @@
                 </div>
             </div>
         </div>
-        <button class="btn-primary" style="background:#05cd99;" onclick="handleDSARegistration()">Submit Application 🚀</button>
-        <p style="text-align: center; font-size: 13px; margin-top: 10px;">Already Registered? <a href="#" onclick="toggleAuth('login')" style="color:#4318ff; font-weight:bold;">Login Here</a></p>
+        <button type="button" class="btn-primary" style="background:#05cd99;" onclick="handleDSARegistration(event)">Submit Application 🚀</button>
+        <p style="text-align: center; font-size: 13px; margin-top: 10px;">Already Registered? <a href="javascript:void(0)" onclick="toggleAuth('login')" style="color:#4318ff; font-weight:bold;">Login Here</a></p>
     </div>
 </div>
 
@@ -109,20 +109,20 @@
         <div>
             <span id="user-display" style="font-weight: 600; margin-right: 10px;"></span>
             <span id="role-badge" class="badge"></span>
-            <button onclick="logout()" style="width: auto; padding: 5px 12px; background: #ee5d50; border: none; color: white; border-radius: 6px; margin-left:10px;">Logout</button>
+            <button type="button" onclick="logout()" style="width: auto; padding: 5px 12px; background: #ee5d50; border: none; color: white; border-radius: 6px; margin-left:10px;">Logout</button>
         </div>
     </div>
 
     <!-- TABS NAVIGATION -->
     <div class="nav-tabs">
-        <button class="tab-btn active" onclick="switchTab('tab-sm-hub')">👔 Product & Bank Wise SM Directory</button>
-        <button class="tab-btn" onclick="switchTab('tab-calling')">📞 Calling Desk & Queue</button>
-        <button class="tab-btn" onclick="switchTab('tab-bulk')">📥 Bulk Data Import (Excel/CSV)</button>
-        <button class="tab-btn" onclick="switchTab('tab-apply')">📝 Customer Application (Auto-Match SM)</button>
-        <button class="tab-btn" onclick="switchTab('tab-bank-links')">🔗 Direct Bank Links & Passwords</button>
-        <button class="tab-btn" onclick="switchTab('tab-banking')">🏦 Banking Operations</button>
-        <button class="tab-btn" onclick="switchTab('tab-vault')">📁 Vault & Payouts</button>
-        <button class="tab-btn" id="admin-tab-btn" style="display:none;" onclick="switchTab('tab-admin')">👑 Admin Control Panel</button>
+        <button type="button" class="tab-btn active" onclick="switchTab('tab-sm-hub')">👔 Product & Bank Wise SM Directory</button>
+        <button type="button" class="tab-btn" onclick="switchTab('tab-calling')">📞 Calling Desk & Queue</button>
+        <button type="button" class="tab-btn" onclick="switchTab('tab-bulk')">📥 Bulk Data Import (Excel/CSV)</button>
+        <button type="button" class="tab-btn" onclick="switchTab('tab-apply')">📝 Customer Application (Auto-Match SM)</button>
+        <button type="button" class="tab-btn" onclick="switchTab('tab-bank-links')">🔗 Direct Bank Links & Passwords</button>
+        <button type="button" class="tab-btn" onclick="switchTab('tab-banking')">🏦 Banking Operations</button>
+        <button type="button" class="tab-btn" onclick="switchTab('tab-vault')">📁 Vault & Payouts</button>
+        <button type="button" class="tab-btn" id="admin-tab-btn" style="display:none;" onclick="switchTab('tab-admin')">👑 Admin Control Panel</button>
     </div>
 
     <!-- GLOBAL KPI DASHBOARD -->
@@ -151,7 +151,7 @@
     <div id="tab-sm-hub" class="tab-content active">
         <div class="card" style="border-left: 5px solid #05cd99;">
             <h3>👔 Direct Product & Bank Sales Manager (SM) Directory</h3>
-            <p style="color:#a3aed0; margin-bottom: 12px;">City, Specific Bank ya Loan Category (Home Loan, Personal Loan, Business Loan) ke hisab se exact Sales Manager contact karein.</p>
+            <p style="color:#a3aed0; margin-bottom: 12px;">City, Specific Bank ya Loan Category ke hisab se exact Sales Manager contact karein.</p>
             <div class="grid-3">
                 <div>
                     <label>📍 City Filter</label>
@@ -204,7 +204,7 @@
             <h3>📥 Smart Bulk Calling Data Importer</h3>
             <p style="color: #a3aed0; margin-bottom: 12px;">Excel Sheet se saare columns copy karke paste karein. System Name, Mobile aur City auto-detect karega.</p>
             <textarea id="bulk-paste-area" rows="8" placeholder="Paste Excel Rows Here..."></textarea>
-            <button class="btn-primary" style="background:#05cd99;" onclick="processBulkData()">Import Data into Calling Engine 🚀</button>
+            <button type="button" class="btn-primary" style="background:#05cd99;" onclick="processBulkData()">Import Data into Calling Engine 🚀</button>
         </div>
     </div>
 
@@ -225,6 +225,7 @@
                         <option value="Personal Loan">Personal Loan</option>
                         <option value="Home Loan">Home Loan</option>
                         <option value="Business Loan">Business Loan</option>
+                        <option value="Credit Card">Credit Card</option>
                     </select>
                 </div>
                 <div><label>Required Loan Amount (₹) *</label><input type="number" id="app-amount" placeholder="Amount"></div>
@@ -247,7 +248,7 @@
                 <div id="sm-matched-details" style="font-size: 13px; color: #111c44;"></div>
             </div>
 
-            <button class="btn-primary" onclick="submitLoanApplication()">Save & Register Lead 🚀</button>
+            <button type="button" class="btn-primary" onclick="submitLoanApplication()">Save & Register Lead 🚀</button>
         </div>
     </div>
 
@@ -286,7 +287,7 @@
                 </select>
                 <input type="file" id="upload-file">
             </div>
-            <button class="btn-primary" onclick="uploadDocument()">Upload Document 📤</button>
+            <button type="button" class="btn-primary" onclick="uploadDocument()">Upload Document 📤</button>
         </div>
         <div class="card">
             <h3>💰 Sub-Agent / Staff Payout Ledger</h3>
@@ -315,11 +316,11 @@
                     <input type="text" id="admin-sm-mobile" placeholder="SM Mobile Number">
                     <input type="text" id="admin-sm-email" placeholder="SM Email ID">
                     <input type="text" id="admin-sm-location" placeholder="Branch / Office Location (e.g. MI Road Branch)">
-                    <button class="btn-primary" onclick="saveSingleSM()">Save Sales Manager 💾</button>
+                    <button type="button" class="btn-primary" onclick="saveSingleSM()">Save Sales Manager 💾</button>
                     <hr style="margin: 15px 0;">
                     <p style="font-size:11px; color:gray;">Paste Format: BankName | Product | City | SM_Name | SM_Mobile | SM_Email | Location</p>
                     <textarea id="sm-bulk-paste" rows="4" placeholder="HDFC Bank  Home Loan  Jaipur  Rakesh Verma  9829011223  rakesh@hdfc.com  Vaishali Nagar Branch"></textarea>
-                    <button class="btn-primary" style="background:#05cd99;" onclick="processBulkSM()">Bulk Import SMs 📥</button>
+                    <button type="button" class="btn-primary" style="background:#05cd99;" onclick="processBulkSM()">Bulk Import SMs 📥</button>
                 </div>
                 <!-- BANK & USER CONTROL -->
                 <div>
@@ -329,14 +330,14 @@
                     <div class="grid-2" style="margin:0;"><input type="text" id="new-bank-roi" placeholder="ROI"><input type="number" id="new-bank-comm" placeholder="Payout %"></div>
                     <input type="text" id="new-bank-link" placeholder="Portal URL">
                     <div class="grid-2" style="margin:0;"><input type="text" id="new-bank-portal-id" placeholder="Portal User ID"><input type="text" id="new-bank-portal-pass" placeholder="Password"></div>
-                    <button class="btn-primary" style="background:#05cd99;" onclick="saveBankPartner()">Save Bank Details</button>
+                    <button type="button" class="btn-primary" style="background:#05cd99;" onclick="saveBankPartner()">Save Bank Details</button>
                     
                     <hr style="margin: 15px 0;">
                     <h4>🔑 Create Calling Staff / Agent</h4>
                     <input type="text" id="new-user-name" placeholder="Username">
                     <select id="new-user-role"><option value="STAFF">Calling Staff</option><option value="AGENT">DSA Agent</option></select>
                     <input type="password" id="new-user-pass" placeholder="Password">
-                    <button class="btn-primary" onclick="createUser()">Create User</button>
+                    <button type="button" class="btn-primary" onclick="createUser()">Create User</button>
                 </div>
             </div>
         </div>
