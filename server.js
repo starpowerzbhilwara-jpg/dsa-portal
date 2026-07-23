@@ -135,7 +135,7 @@ app.get('/api/banks', (req, res) => res.json({ success: true, banks: BANKS }));
 app.get('/api/leads', (req, res) => res.json({ success: true, leads: LEADS }));
 
 // Start Server
-const PORT = proceconst PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 10000;
 
 app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
