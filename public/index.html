@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Enterprise DSA Portal & Product-Wise SM Hub</title>
+    <script src="/socket.io/socket.io.js"></script>
+    <style>
+        * { box-sizing: border-box; font-family: 'Segoe UI', Arial, sans-serif; margin: 0; padding: 0; }
+        body { background-color: #f4f7fe; color: #2b3674; }
+        .auth-box { max-width: 550px; margin: 50px auto; background: white; padding: 30px; border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.08); }
+        .navbar { background: #111c44; color: white; padding: 15px 30px; display: flex; justify-content: space-between; align-items: center; }
+        .nav-tabs { display: flex; background: #ffffff; padding: 10px 30px; gap: 8px; border-bottom: 1px solid #e0e5f2; flex-wrap: wrap; }
+        .tab-btn { padding: 10px 16px; border: none; background: transparent; cursor: pointer; font-weight: 600; color: #2b3674; border-radius: 8px; font-size: 13px; }
+        .tab-btn.active { background: #4318ff; color: white; }
+        .tab-content { padding: 25px 30px; max-width: 1350px; margin: 0 auto; display: none; }
+        .tab-content.active { display: block; }
+        .card { background: white; padding: 22px; border-radius: 12px; box-shadow: 0 4px 18px rgba(0,0,0,0.03); margin-bottom: 20px; }
+        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+        .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; }
+        .grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; }
+        
+        .kpi-card { background: white; border-radius: 12px; padding: 16px; border-left: 5px solid #4318ff; box-shadow: 0 4px 12px rgba(0,0,0,0.03); }
+        .kpi-title { font-size: 11px; color: #a3aed0; font-weight: bold; text-transform: uppercase; }
+        .kpi-value { font-size: 20px; font-weight: bold; color: #2b3674; margin-top: 4px; }
+
+        input, select, textarea, button { width: 100%; padding: 11px; border: 1px solid #e0e5f2; border-radius: 8px; margin-top: 5px; margin-bottom: 12px; font-size: 13px; }
+        button.btn-primary { background: #4318ff; color: white; border: none; font-weight: bold; cursor: pointer; }
+        button.btn-primary:hover { background: #3311db; }
+        .btn-call { background: #05cd99; color: white; padding: 6px 12px; text-decoration: none; border-radius: 6px; font-weight: bold; font-size: 12px; display: inline-block; }
+        .btn-partner { background: #ffb547; color: #111c44; padding: 8px 14px; text-decoration: none; border-radius: 6px; font-weight: bold; font-size: 12px; display: inline-block; text-align: center; }
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+        th, td { border-bottom: 1px solid #e0e5f2; padding: 10px 12px; text-align: left; font-size: 13px; }
+        th { background: #f4f7fe; color: #a3aed0; text-transform: uppercase; }
+        .badge { padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: bold; color: white; }
+        .badge-admin { background: #ee5d50; }
+        .badge-staff { background: #05cd99; }
+        .badge-agent { background: #ffb547; }
+        .doc-chip { background: #e9edf7; padding: 3px 6px; border-radius: 4px; font-size: 11px; margin-right: 4px; text-decoration: none; color: #4318ff; font-weight: bold; }
+        .cred-box { background: #e9edf7; padding: 8px; border-radius: 6px; font-size: 12px; margin: 8px 0; border-left: 3px solid #4318ff; }
+        .sm-card { background: #f4f7fe; border-left: 5px solid #05cd99; padding: 15px; border-radius: 8px; margin-bottom: 10px; position: relative; }
+        .sm-badge-product { position: absolute; top: 12px; right: 12px; background: #4318ff; color: white; font-size: 11px; padding: 3px 8px; border-radius: 12px; font-weight: bold; }
+        .sm-live-match-box { background: #e6f9f3; border: 2px dashed #05cd99; padding: 15px; border-radius: 8px; margin-bottom: 15px; display: none; }
+        .checkbox-group { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 12px; }
+        .checkbox-group label { width: auto; font-size: 12px; font-weight: bold; cursor: pointer; }
+    </style>
+</head>
+<body>
+
+<!-- AUTH SECTION -->
+<div id="auth-view">
+    <div class="auth-box" id="login-box">
+        <h2 style="text-align: center; color: #4318ff; margin-bottom: 15px;">🔐 DSA & Staff Login</h2>
+        <label>User ID / Registered Name</label>
+        <input type="text" id="login-name" placeholder="Enter Username (e.g. admin)">
+        <label>Password</label>
+        <input type="password" id="login-pass" placeholder="Enter Password">
+        <button class="btn-primary" onclick="handleLogin()">Sign In</button>
+        <p style="text-align: center; font-size: 13px; margin-top: 10px;">New Partner/DSA? <a href="#" onclick="toggleAuth('signup')" style="color:#4318ff; font-weight:bold;">Register / Apply Here</a></p>
+    </div>
+
+    <div class="auth-box" id="signup-box" style="display: none; max-width: 700px;">
+        <h2 style="text-align: center; color: #05cd99; margin-bottom: 15px;">📝 New Sub-DSA / Partner Registration</h2>
+        <div class="grid-2">
+            <div><label>Full Name / Business Name *</label><input type="text" id="reg-name" placeholder="Name"></div>
+            <div><label>Set Login Password *</label><input type="password" id="reg-pass" placeholder="Password"></div>
+        </div>
+        <div class="grid-3">
+            <div><label>Mobile Number *</label><input type="text" id="reg-mobile" placeholder="10-digit Mobile"></div>
+            <div><label>Email ID</label><input type="email" id="reg-email" placeholder="Email"></div>
+            <div><label>City / Location *</label><input type="text" id="reg-city" placeholder="Jaipur / Delhi"></div>
+        </div>
+        <div class="grid-2">
+            <div><label>PAN Number *</label><input type="text" id="reg-pan" placeholder="ABCDE1234F"></div>
+            <div><label>Aadhaar Number</label><input type="text" id="reg-aadhaar" placeholder="12-digit Aadhaar"></div>
+        </div>
+        <div class="grid-2">
+            <div><label>Bank Account Number</label><input type="text" id="reg-bank-acc" placeholder="Account No"></div>
+            <div><label>Bank IFSC Code</label><input type="text" id="reg-ifsc" placeholder="IFSC Code"></div>
+        </div>
+        <div class="grid-2">
+            <div><label>Now Working Detail</label>
+                <select id="reg-work-status">
+                    <option value="Existing DSA Agent">Existing DSA Agent</option>
+                    <option value="Ex-Banker / Financial Consultant">Ex-Banker / Financial Consultant</option>
+                    <option value="Insurance Advisor">Insurance Advisor</option>
+                    <option value="New Business Start">New Business Start</option>
+                </select>
+            </div>
+            <div>
+                <label>Select Loan Verticals:</label>
+                <div class="checkbox-group">
+                    <label><input type="checkbox" name="vertical" value="PL"> PL</label>
+                    <label><input type="checkbox" name="vertical" value="BL"> BL</label>
+                    <label><input type="checkbox" name="vertical" value="HL"> HL</label>
+                    <label><input type="checkbox" name="vertical" value="CC"> Credit Card</label>
+                </div>
+            </div>
+        </div>
+        <button class="btn-primary" style="background:#05cd99;" onclick="handleDSARegistration()">Submit Application 🚀</button>
+        <p style="text-align: center; font-size: 13px; margin-top: 10px;">Already Registered? <a href="#" onclick="toggleAuth('login')" style="color:#4318ff; font-weight:bold;">Login Here</a></p>
+    </div>
+</div>
+
+<!-- MAIN DASHBOARD -->
+<div id="app-view" style="display: none;">
+    <div class="navbar">
+        <h2>🚀 Enterprise DSA Portal & Product-Wise SM Directory</h2>
+        <div>
+            <span id="user-display" style="font-weight: 600; margin-right: 10px;"></span>
+            <span id="role-badge" class="badge"></span>
+            <button onclick="logout()" style="width: auto; padding: 5px 12px; background: #ee5d50; border: none; color: white; border-radius: 6px; margin-left:10px;">Logout</button>
+        </div>
+    </div>
+
+    <!-- TABS NAVIGATION -->
+    <div class="nav-tabs">
+        <button class="tab-btn active" onclick="switchTab('tab-sm-hub')">👔 Product & Bank Wise SM Directory</button>
+        <button class="tab-btn" onclick="switchTab('tab-calling')">📞 Calling Desk & Queue</button>
+        <button class="tab-btn" onclick="switchTab('tab-bulk')">📥 Bulk Data Import (Excel/CSV)</button>
+        <button class="tab-btn" onclick="switchTab('tab-apply')">📝 Customer Application (Auto-Match SM)</button>
+        <button class="tab-btn" onclick="switchTab('tab-bank-links')">🔗 Direct Bank Links & Passwords</button>
+        <button class="tab-btn" onclick="switchTab('tab-banking')">🏦 Banking Operations</button>
+        <button class="tab-btn" onclick="switchTab('tab-vault')">📁 Vault & Payouts</button>
+        <button class="tab-btn" id="admin-tab-btn" style="display:none;" onclick="switchTab('tab-admin')">👑 Admin Control Panel</button>
+    </div>
+
+    <!-- GLOBAL KPI DASHBOARD -->
+    <div style="padding: 15px 30px 0 30px; max-width: 1350px; margin: 0 auto;">
+        <div class="grid-4">
+            <div class="kpi-card" style="border-color: #4318ff;">
+                <div class="kpi-title">Total Active Queue</div>
+                <div class="kpi-value" id="kpi-total-leads">0</div>
+            </div>
+            <div class="kpi-card" style="border-color: #05cd99;">
+                <div class="kpi-title">In-Process / Logged In</div>
+                <div class="kpi-value" id="kpi-in-process">0</div>
+            </div>
+            <div class="kpi-card" style="border-color: #ffb547;">
+                <div class="kpi-title">Disbursed Loans</div>
+                <div class="kpi-value" id="kpi-disbursed">0</div>
+            </div>
+            <div class="kpi-card" style="border-color: #ee5d50;">
+                <div class="kpi-title">Disbursed Volume</div>
+                <div class="kpi-value" id="kpi-volume">₹0</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- TAB 1: SALES MANAGERS HUB -->
+    <div id="tab-sm-hub" class="tab-content active">
+        <div class="card" style="border-left: 5px solid #05cd99;">
+            <h3>👔 Direct Product & Bank Sales Manager (SM) Directory</h3>
+            <p style="color:#a3aed0; margin-bottom: 12px;">City, Specific Bank ya Loan Category (Home Loan, Personal Loan, Business Loan) ke hisab se exact Sales Manager contact karein.</p>
+            <div class="grid-3">
+                <div>
+                    <label>📍 City Filter</label>
+                    <input type="text" id="sm-search-city" onkeyup="searchSalesManagers()" placeholder="Filter City (e.g. Jaipur, Delhi)...">
+                </div>
+                <div>
+                    <label>🏷️ Product Category Filter</label>
+                    <select id="sm-search-product" onchange="searchSalesManagers()">
+                        <option value="">-- All Products --</option>
+                        <option value="Personal Loan">Personal Loan</option>
+                        <option value="Home Loan">Home Loan</option>
+                        <option value="Business Loan">Business Loan</option>
+                        <option value="Credit Card">Credit Card</option>
+                    </select>
+                </div>
+                <div>
+                    <label>🏛️ Bank Filter</label>
+                    <select id="sm-search-bank" onchange="searchSalesManagers()">
+                        <option value="">-- All Banks --</option>
+                    </select>
+                </div>
+            </div>
+            <div id="sm-directory-list" class="grid-3" style="margin-top: 15px;"></div>
+        </div>
+    </div>
+
+    <!-- TAB 2: CALLING DESK -->
+    <div id="tab-calling" class="tab-content">
+        <div class="card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                <h3>📞 Smart Calling Desk</h3>
+                <div style="width: 300px; margin:0;">
+                    <input type="text" id="calling-search-input" onkeyup="filterCallingData()" placeholder="🔍 Filter Name, City, Mobile..." style="margin:0;">
+                </div>
+            </div>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Lead ID</th><th>Customer Name</th><th>Mobile</th><th>City / District</th><th>Direct Call</th><th>Status</th><th>Quick Stage Update</th>
+                    </tr>
+                </thead>
+                <tbody id="calling-table-body"></tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- TAB 3: BULK IMPORT -->
+    <div id="tab-bulk" class="tab-content">
+        <div class="card">
+            <h3>📥 Smart Bulk Calling Data Importer</h3>
+            <p style="color: #a3aed0; margin-bottom: 12px;">Excel Sheet se saare columns copy karke paste karein. System Name, Mobile aur City auto-detect karega.</p>
+            <textarea id="bulk-paste-area" rows="8" placeholder="Paste Excel Rows Here..."></textarea>
+            <button class="btn-primary" style="background:#05cd99;" onclick="processBulkData()">Import Data into Calling Engine 🚀</button>
+        </div>
+    </div>
+
+    <!-- TAB 4: APPLICATION FORM WITH DYNAMIC SM MATCHING -->
+    <div id="tab-apply" class="tab-content">
+        <div class="card">
+            <h3>📝 New Customer Loan Application Form</h3>
+            <p style="color:#a3aed0; margin-bottom: 12px;">City, Loan Category aur Preferred Bank select karte hi mapped **Sales Manager (SM)** screen par instantly show ho jayega!</p>
+            <div class="grid-3">
+                <div><label>Lead ID (Auto)</label><input type="text" id="app-lead-id" placeholder="Auto-generated"></div>
+                <div><label>Customer Full Name *</label><input type="text" id="app-cust-name" placeholder="Name"></div>
+                <div><label>Mobile Number *</label><input type="text" id="app-mobile" placeholder="Mobile"></div>
+            </div>
+            <div class="grid-3">
+                <div><label>City / District *</label><input type="text" id="app-city" onkeyup="triggerDynamicSMMatch()" placeholder="Enter City (e.g. Jaipur, Delhi)"></div>
+                <div><label>Loan Product Category *</label>
+                    <select id="app-loan-type" onchange="triggerDynamicSMMatch()">
+                        <option value="Personal Loan">Personal Loan</option>
+                        <option value="Home Loan">Home Loan</option>
+                        <option value="Business Loan">Business Loan</option>
+                    </select>
+                </div>
+                <div><label>Required Loan Amount (₹) *</label><input type="number" id="app-amount" placeholder="Amount"></div>
+            </div>
+            <div class="grid-2">
+                <div><label>Select Preferred Bank Partner *</label><select id="app-bank-select" onchange="triggerDynamicSMMatch()"></select></div>
+                <div><label>Initial Status</label>
+                    <select id="app-status">
+                        <option value="New Calling Data">New Calling Data</option>
+                        <option value="Interested / To Apply">Interested / To Apply</option>
+                        <option value="Documents Collected">Documents Collected</option>
+                        <option value="Bank Login Submitted">Bank Login Submitted</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- DYNAMIC MAPPED SM DISPLAY BOX -->
+            <div id="sm-matched-banner" class="sm-live-match-box">
+                <h4 style="color:#05cd99; margin-bottom: 5px;">✅ Auto-Matched Sales Manager (SM) Details:</h4>
+                <div id="sm-matched-details" style="font-size: 13px; color: #111c44;"></div>
+            </div>
+
+            <button class="btn-primary" onclick="submitLoanApplication()">Save & Register Lead 🚀</button>
+        </div>
+    </div>
+
+    <!-- TAB 5: DIRECT BANK LINKS HUB -->
+    <div id="tab-bank-links" class="tab-content">
+        <div class="card" style="border-left: 5px solid #ffb547;">
+            <h3>🔗 Direct Partner Portal & Credentials Hub</h3>
+            <div id="bank-links-grid" class="grid-3"></div>
+        </div>
+    </div>
+
+    <!-- TAB 6: BANKING OPERATIONS -->
+    <div id="tab-banking" class="tab-content">
+        <div class="card">
+            <h3>🏦 Master Approval & Processing Tracker</h3>
+            <table>
+                <thead>
+                    <tr><th>Lead ID</th><th>Customer & City</th><th>Loan & Product</th><th>Bank & Assigned SM</th><th>Stage & Docs</th><th>Action Update</th></tr>
+                </thead>
+                <tbody id="banking-table-body"></tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- TAB 7: VAULT & PAYOUTS -->
+    <div id="tab-vault" class="tab-content">
+        <div class="card">
+            <h3>📁 Digital Document Vault</h3>
+            <div class="grid-3">
+                <input type="text" id="upload-lead-id" placeholder="Lead ID (e.g. LD101)">
+                <select id="upload-doc-type">
+                    <option value="PAN Card">PAN Card</option>
+                    <option value="Aadhar Card">Aadhar Card</option>
+                    <option value="Payslips">Payslips</option>
+                    <option value="Bank Statement">Bank Statement</option>
+                </select>
+                <input type="file" id="upload-file">
+            </div>
+            <button class="btn-primary" onclick="uploadDocument()">Upload Document 📤</button>
+        </div>
+        <div class="card">
+            <h3>💰 Sub-Agent / Staff Payout Ledger</h3>
+            <div id="payout-summary-container"></div>
+        </div>
+    </div>
+
+    <!-- TAB 8: ADMIN CONTROL -->
+    <div id="tab-admin" class="tab-content">
+        <div class="card" style="border-left: 5px solid #ee5d50;">
+            <h3>👑 Admin Management Studio</h3>
+            <div class="grid-2">
+                <!-- SM CONTROL WITH PRODUCT CATEGORY -->
+                <div>
+                    <h4>👔 Sales Manager Add/Edit (Product & Bank Mapped)</h4>
+                    <input type="hidden" id="admin-sm-id">
+                    <input type="text" id="admin-sm-bank" placeholder="Bank Name (e.g. HDFC Bank)">
+                    <select id="admin-sm-product">
+                        <option value="Personal Loan">Personal Loan</option>
+                        <option value="Home Loan">Home Loan</option>
+                        <option value="Business Loan">Business Loan</option>
+                        <option value="Credit Card">Credit Card</option>
+                    </select>
+                    <input type="text" id="admin-sm-city" placeholder="City (e.g. Jaipur)">
+                    <input type="text" id="admin-sm-name" placeholder="SM Name (e.g. Vikram Sharma)">
+                    <input type="text" id="admin-sm-mobile" placeholder="SM Mobile Number">
+                    <input type="text" id="admin-sm-email" placeholder="SM Email ID">
+                    <input type="text" id="admin-sm-location" placeholder="Branch / Office Location (e.g. MI Road Branch)">
+                    <button class="btn-primary" onclick="saveSingleSM()">Save Sales Manager 💾</button>
+                    <hr style="margin: 15px 0;">
+                    <p style="font-size:11px; color:gray;">Paste Format: BankName | Product | City | SM_Name | SM_Mobile | SM_Email | Location</p>
+                    <textarea id="sm-bulk-paste" rows="4" placeholder="HDFC Bank  Home Loan  Jaipur  Rakesh Verma  9829011223  rakesh@hdfc.com  Vaishali Nagar Branch"></textarea>
+                    <button class="btn-primary" style="background:#05cd99;" onclick="processBulkSM()">Bulk Import SMs 📥</button>
+                </div>
+                <!-- BANK & USER CONTROL -->
+                <div>
+                    <h4>🏛️ Add Bank Partner Credentials</h4>
+                    <input type="hidden" id="edit-bank-id">
+                    <input type="text" id="new-bank-name" placeholder="Bank Name">
+                    <div class="grid-2" style="margin:0;"><input type="text" id="new-bank-roi" placeholder="ROI"><input type="number" id="new-bank-comm" placeholder="Payout %"></div>
+                    <input type="text" id="new-bank-link" placeholder="Portal URL">
+                    <div class="grid-2" style="margin:0;"><input type="text" id="new-bank-portal-id" placeholder="Portal User ID"><input type="text" id="new-bank-portal-pass" placeholder="Password"></div>
+                    <button class="btn-primary" style="background:#05cd99;" onclick="saveBankPartner()">Save Bank Details</button>
+                    
+                    <hr style="margin: 15px 0;">
+                    <h4>🔑 Create Calling Staff / Agent</h4>
+                    <input type="text" id="new-user-name" placeholder="Username">
+                    <select id="new-user-role"><option value="STAFF">Calling Staff</option><option value="AGENT">DSA Agent</option></select>
+                    <input type="password" id="new-user-pass" placeholder="Password">
+                    <button class="btn-primary" onclick="createUser()">Create User</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="app.js"></script>
+</body>
+</html>
+// Automatically open signup tab if URL contains #signup
+window.addEventListener('load', () => {
+    if (window.location.hash === '#signup') {
+        toggleAuth('signup');
+    }
+});
